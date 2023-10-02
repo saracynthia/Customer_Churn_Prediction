@@ -1,0 +1,60 @@
+#import files
+
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+
+# Load the customer churn dataset into a pandas dataframe.
+data = pd.read_csv('sprint_churn.csv')
+
+# Use pandas, numpy and matplotlib to explore columns, summary statistics, data types, null values and visualize relationships.
+data.shape
+data.describe()
+data.isnull().sum()
+plt.hist(data['Age'])
+sns.countplot(x='Churn',data=data)
+
+
+#Encode categorical columns, normalize continuous columns, handle missing values and split data into train and test sets.
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+data['Gender'] = le.fit_transform(data['Gender'])
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(data.drop('Churn',axis=1))  
+scaled_features = scaler.transform(data.drop('Churn',axis=1))
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(scaled_features,data['Churn'],test_size=0.3, random_state=101)
+
+
+
+Train different models like Logistic Regression, Decision Trees on the data.
+logmodel = LogisticRegression()
+logmodel.fit(X_train,y_train)
+
+dt = DecisionTreeClassifier()  
+dt.fit(X_train,y_train)
+
+
+#Compare models on accuracy, AUC-ROC curve etc. Choose the best model.
+from sklearn.metrics import accuracy_score,roc_auc_score
+print(accuracy_score(y_test,logmodel.predict(X_test)) 
+print(roc_auc_score(y_test,logmodel.predict_proba(X_test)[:,1]))
+
+
+
+Tune hyperparameters of chosen model using GridSearch or RandomizedSearch.
+from sklearn.model_selection import GridSearchCV
+params = {'C':[0.1,1,10,100]}
+grid = GridSearchCV(logmodel,params,scoring='accuracy',cv=5)
+grid.fit(X_train,y_train)
+print(grid.best_params_)
+
+#Pickle the final model to be used for future predictions.
+import pickle
+pickle.dump(grid,open('churn_model.pkl','wb'))
+
+
