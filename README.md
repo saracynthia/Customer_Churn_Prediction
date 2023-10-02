@@ -1,4 +1,4 @@
-# Customer_Chan_Prediction
+# Customer_Churn_Prediction
 
 **PROBLEM STATEMENT**
 
